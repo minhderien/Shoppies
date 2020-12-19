@@ -1,4 +1,4 @@
-# shoppies
+# Shoppies
 
 ## Project setup
 ```
