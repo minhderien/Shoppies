@@ -2,21 +2,26 @@
   <div class="container">
     <h2>The Shoppies</h2>
     <div class="search-bar">
-        <!-- Add search component -->
-        <h3>Search for something</h3>
+        <h3>Movie title</h3>
+        <!-- Search-bar component -->
         <search-bar @search-changed="onSearchChanged"/>
     </div>
     <div class="row">
       <div class="column search-results">
-        <h3>Result(s) for "placeholder"</h3>
+        <h3>Result(s) for "{{searchedMovie}}"</h3>
+          <h4 v-if="isTooManyResult">There is too many result. Please try to be more specific.</h4>
           <div 
-            class="nomination-list" 
+            class="result-list" 
             v-for="movie in moviesResult"
             v-bind:key="movie.id"
           >
-            <movie/>
+            <!-- Movie component -->
+            <movie 
+              :movie="movie"
+              :isResult="true"
+              @nominated="onNominated"
+            />
           </div>
-        <!-- Add search's result component -->
       </div>
       <div class="column nominations">
         <h3>Nominations</h3>
@@ -25,7 +30,12 @@
           v-for="movie in nominatedMovies"
           v-bind:key="movie.id"
         >
-          <movie/>
+          <!-- Movie component -->
+          <movie
+            :movie="movie"
+            :isNominated="true"
+            @removed="onRemoved"
+          />
         </div>
       </div>
     </div>
@@ -47,16 +57,50 @@ export default {
   },
   data() {
     return {
+      searchedMovie: '',
+      isTooManyResult: false,
       moviesResult: [],
       nominatedMovies: []
     }
   },
   methods: {
+    /**
+     * Async method that call the Omdb service to get the searched movie.
+     * @param searchInput The movie to be searched.
+     */
     async onSearchChanged(searchInput) {
-      console.log('capture emitted event :', searchInput);
-      const { data } = await OmdbService.getMovieByTitle(searchInput);
-      console.log('data: ', data);
-    }
+      this.searchedMovie = searchInput.trim();
+      this.moviesResult = [];
+
+      if (this.searchedMovie !== '') {
+        const { data } = await OmdbService.getMoviesByTitle(searchInput.trim());
+        if (data.Error) {
+          this.isTooManyResult = true;
+        } else {
+          this.isTooManyResult = false;
+
+          data.Search.forEach(movie => {
+            this.moviesResult.push(movie);
+          });
+        }
+      }
+    },
+    /**
+     * Handle when a movie is nominated. Add the movie to the nomination list.
+     * @param movie The movie to be added in the nomination list.
+     */
+    onNominated(movie) {
+      this.nominatedMovies.push(movie);
+    },
+
+    /**
+     * Handle when a movie is removed from the nomination list.
+     * @param movie The movie to be removed from the nomination list.
+     */
+    onRemoved(movie) {
+      const movieIndex = this.nominatedMovies.indexOf(movie);
+      if (movieIndex !== -1) this.nominatedMovies.splice(movieIndex, 1);
+    } 
   }
 }
 </script>
@@ -73,7 +117,17 @@ export default {
 
 .column {
   flex: 50%;
-  height: 50vh;
+  height: 100%;
+}
+
+.search-results {
+  border: 2px solid gray;
+  border-radius: 3px;
+}
+
+.nominations {
+  border: 2px solid green;
+  border-radius: 3px;
 }
 
 </style>
