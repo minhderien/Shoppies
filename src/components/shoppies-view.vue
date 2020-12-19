@@ -35,8 +35,10 @@
 <script>
 import SearchBar from './search-bar.vue';
 import Movie from './movie.vue';
-//import axios from 'axios'
 
+import { ServiceFactory } from '../service/omdb-factory';
+
+const OmdbService = ServiceFactory.get('movies');
 export default {
   name: 'ShoppiesView',
   components: {
@@ -50,8 +52,10 @@ export default {
     }
   },
   methods: {
-    onSearchChanged(searchInput) {
+    async onSearchChanged(searchInput) {
       console.log('capture emitted event :', searchInput);
+      const { data } = await OmdbService.getMovieByTitle(searchInput);
+      console.log('data: ', data);
     }
   }
 }
