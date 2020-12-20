@@ -1,24 +1,24 @@
 <template>
   <div class="container">
-    <h2>The Shoppies</h2>
+    <h2 class="title">The Shoppies</h2>
     <div class="search-bar">
         <h3>Movie title</h3>
         <!-- Search-bar component -->
         <search-bar @search-changed="onSearchChanged"/>
     </div>
     <div class="row">
-      <div class="column search-results">
+      <div :class="{'column search-results': !isNominatedMovieFull, 'column search-results--disable': isNominatedMovieFull}">
         <h3>Result(s) for "{{searchedMovie}}"</h3>
-          <h4 v-if="isTooManyResult">There is too many result. Please try to be more specific.</h4>
+          <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
           <div 
-            class="result-list" 
+            class="search-results__item" 
             v-for="movie in moviesResult"
             v-bind:key="movie.id"
           >
             <!-- Movie component -->
             <movie 
               :movie="movie"
-              :isResult="true"
+              :is-result="true"
               @nominated="onNominated"
             />
           </div>
@@ -26,7 +26,7 @@
       <div class="column nominations">
         <h3>Nominations</h3>
         <div 
-          class="nomination-list" 
+          class="nominations__item" 
           v-for="movie in nominatedMovies"
           v-bind:key="movie.id"
         >
@@ -63,6 +63,12 @@ export default {
       nominatedMovies: []
     }
   },
+  computed: {
+    /** Computed getter to return whether the nomination list is full or not */
+    isNominatedMovieFull() {
+      return this.nominatedMovies.length >= 5;
+    }
+  },
   methods: {
     /**
      * Async method that call the Omdb service to get the searched movie.
@@ -71,6 +77,7 @@ export default {
     async onSearchChanged(searchInput) {
       this.searchedMovie = searchInput.trim();
       this.moviesResult = [];
+      this.isTooManyResult = false;
 
       if (this.searchedMovie !== '') {
         const { data } = await OmdbService.getMoviesByTitle(searchInput.trim());
@@ -80,7 +87,9 @@ export default {
           this.isTooManyResult = false;
 
           data.Search.forEach(movie => {
-            this.moviesResult.push(movie);
+            // Search if the movie is already nominated
+            const movieIndex = this.nominatedMovies.findIndex(nominatedMovie => nominatedMovie.imdbID === movie.imdbID);
+            if (movieIndex === -1) this.moviesResult.push(movie);
           });
         }
       }
@@ -91,6 +100,9 @@ export default {
      */
     onNominated(movie) {
       this.nominatedMovies.push(movie);
+      
+      const movieIndexInResult = this.moviesResult.indexOf(movie);
+      if (movieIndexInResult !== -1) this.moviesResult.splice(movieIndexInResult, 1);
     },
 
     /**
@@ -106,6 +118,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.title {
+  text-align: center;
+}
+
+.title::before {
+  content: "🏆";
+}
 
 .container {
   text-align: left;
@@ -123,6 +142,10 @@ export default {
 .search-results {
   border: 2px solid gray;
   border-radius: 3px;
+
+  &--disable {
+    pointer-events: none;
+  }
 }
 
 .nominations {
