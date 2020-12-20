@@ -2,43 +2,40 @@
   <div class="container">
     <h2 class="title">The Shoppies</h2>
     <div class="search-bar">
-        <h3>Movie title</h3>
-        <!-- Search-bar component -->
-        <search-bar @search-changed="onSearchChanged"/>
+      <!-- Search-bar component -->
+      <search-bar @search-changed="onSearchChanged"/>
     </div>
-    <div class="row">
-      <div :class="{'column search-results': !isNominatedMovieFull, 'column search-results--disable': isNominatedMovieFull}">
-        <h3>Result(s) for "{{searchedMovie}}"</h3>
-          <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
-          <div 
-            class="search-results__item" 
-            v-for="movie in moviesResult"
-            v-bind:key="movie.id"
-          >
-            <!-- Movie component -->
-            <movie 
-              :movie="movie"
-              :is-result="true"
-              @nominated="onNominated"
-            />
-          </div>
+    <div class="nomination-grid">
+      <div 
+        class="nomination__item" 
+        v-for="movie in nominatedMovies"
+        v-bind:key="movie.id"
+      >
+        <!-- Movie component -->
+        <movie
+          :movie="movie"
+          :isNominated="true"
+          @removed="onRemoved"
+        />
       </div>
-      <div class="column nominations">
-        <h3>Nominations</h3>
+    </div>
+    <h3>Result(s) for "{{searchedMovie}}"</h3>
+    <span>Click on a movie to add it to the nomination list</span>
+    <div :class="{'grid-container search-results': !isNominatedMovieFull, 'grid-container search-results--disable': isNominatedMovieFull}">
+        <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
         <div 
-          class="nominations__item" 
-          v-for="movie in nominatedMovies"
+          class="search-results__item" 
+          v-for="movie in moviesResult"
           v-bind:key="movie.id"
         >
           <!-- Movie component -->
-          <movie
+          <movie 
             :movie="movie"
-            :isNominated="true"
-            @removed="onRemoved"
+            :is-result="true"
+            @nominated="onNominated"
           />
         </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -118,6 +115,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 .title {
   text-align: center;
 }
@@ -140,7 +138,6 @@ export default {
 }
 
 .search-results {
-  border: 2px solid gray;
   border-radius: 3px;
 
   &--disable {
@@ -148,9 +145,29 @@ export default {
   }
 }
 
-.nominations {
-  border: 2px solid green;
-  border-radius: 3px;
+.search-bar {
+  text-align: center;
 }
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(8, auto);
+  padding: 24px 0 0 72px ;
+  gap: 10px 20px;
+}
+
+.nomination-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 172px);
+  padding-top: 16px;
+  justify-items: auto;
+}
+
+.nomination {
+  &__item {
+    margin: auto;
+  }
+}
+
 
 </style>
