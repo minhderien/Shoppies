@@ -11,14 +11,13 @@
       v-if="this.isMouseOver"
       class="card__overlay card__overlay--nominate fade-in"
     >
-      <img src="../assets/nominate_icon.svg" width="64px" height="64px">
+      <img src="../assets/nominate_icon.svg" width="64" height="64">
     </div>
   </div>
 </template>
 
 <script>
 import imagePlaceholder from '../assets/img_placeholder.png';
-import nominateIcon from '../assets/nominate_icon.svg';
 
 export default {
     name: 'Movie',
@@ -30,7 +29,6 @@ export default {
     data() {
       return {
         imagePlaceholder: imagePlaceholder,
-        nominateIcon: nominateIcon,
         isMouseOver: false,
         isNominateIconMouseOver: false
       }

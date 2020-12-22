@@ -5,6 +5,7 @@
       <!-- Search-bar component -->
       <search-bar @search-changed="onSearchChanged"/>
     </div>
+    <center><h2>Your nominated movies</h2></center>
     <div class="nomination-grid">
       <div 
         class="nomination__item" 
@@ -18,9 +19,19 @@
           @removed="onRemoved"
         />
       </div>
+
+      <div 
+        class="nomination__item" 
+        v-for="(emptyMovie, index) in emptyList"
+        v-bind:key="index"
+      >
+        <empty-movie/>
+      </div>
     </div>
+    <center>
     <h3>Result(s) for "{{searchedMovie}}"</h3>
     <span>Click on a movie to add it to the nomination list</span>
+    </center>
     <div :class="{'grid-container search-results': !isNominatedMovieFull, 'grid-container search-results--disable': isNominatedMovieFull}">
         <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
         <div 
@@ -42,28 +53,43 @@
 <script>
 import SearchBar from './search-bar.vue';
 import Movie from './movie.vue';
+import EmptyMovie from './empty-movie.vue';
 
 import { ServiceFactory } from '../service/omdb-factory';
 
+
 const OmdbService = ServiceFactory.get('movies');
+
+const MAX_NOMINATED_MOVIES = 5;
+
 export default {
   name: 'ShoppiesView',
   components: {
     SearchBar,
-    Movie
+    Movie,
+    EmptyMovie
   },
   data() {
     return {
       searchedMovie: '',
       isTooManyResult: false,
       moviesResult: [],
-      nominatedMovies: []
+      nominatedMovies: [],
+      emptyList: []
     }
   },
   computed: {
     /** Computed getter to return whether the nomination list is full or not */
     isNominatedMovieFull() {
-      return this.nominatedMovies.length >= 5;
+      return this.nominatedMovies.length >= MAX_NOMINATED_MOVIES;
+    },
+    emptyNominatedMovieLength() {
+      return MAX_NOMINATED_MOVIES - this.nominatedMovies.length;
+    }
+  },
+  mounted() {
+    for(let i = 0; i < MAX_NOMINATED_MOVIES; i++) {
+      this.emptyList.push(i);
     }
   },
   methods: {
@@ -96,8 +122,15 @@ export default {
      * @param movie The movie to be added in the nomination list.
      */
     onNominated(movie) {
+      // Add to nominated array
       this.nominatedMovies.push(movie);
+
+      // Replace empty array
+      const nominatedMovieIndex = this.nominatedMovies.indexOf(movie);
+      const emptyListLength = this.emptyList.length - 1;
+      this.emptyList.splice(emptyListLength - nominatedMovieIndex, 1);
       
+      // Delete from search array
       const movieIndexInResult = this.moviesResult.indexOf(movie);
       if (movieIndexInResult !== -1) this.moviesResult.splice(movieIndexInResult, 1);
     },
@@ -107,8 +140,12 @@ export default {
      * @param movie The movie to be removed from the nomination list.
      */
     onRemoved(movie) {
+      // Remove from nominated array
       const movieIndex = this.nominatedMovies.indexOf(movie);
       if (movieIndex !== -1) this.nominatedMovies.splice(movieIndex, 1);
+
+      // Populate emptyList array.
+      this.emptyList.push(movieIndex);
     } 
   }
 }
@@ -160,7 +197,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(5, 172px);
   padding-top: 16px;
-  justify-items: auto;
+  justify-content: center;
 }
 
 .nomination {

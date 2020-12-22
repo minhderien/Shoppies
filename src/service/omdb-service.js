@@ -8,6 +8,6 @@ export default {
    * @param title The title to search.
    */
   getMoviesByTitle(title) {
-    return OmdbBaseConfig.get(`${resource}&s=${title}`);
+    return OmdbBaseConfig.get(`${resource}&s=${title}&type=movie`);
   }
 }
