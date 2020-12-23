@@ -1,7 +1,7 @@
 import OmdbBaseConfig from './omdb-base-config';
-import { config } from '../../config';
+require('dotenv').config();
 
-const resource = `?apikey=${config.SECRET_API_KEY}`;
+const resource = `?apikey=${process.env.VUE_APP_API_KEY}`;
 export default {
   /**
    * Fetch a list of movies from the OMDB api.
