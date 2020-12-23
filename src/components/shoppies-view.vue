@@ -15,7 +15,7 @@
         <!-- Movie component -->
         <movie
           :movie="movie"
-          :isNominated="true"
+          :is-nominated="true"
           @removed="onRemoved"
         />
       </div>
@@ -29,8 +29,10 @@
       </div>
     </div>
     <center>
+      <button v-if="isNominatedMovieFull" class="share-button" type="button" @click="onButtonClicked">Share</button>
       <h3>Result(s) for "{{searchedMovie}}"</h3>
-      <span>Click on a movie to add it to the nomination list</span>
+      <span v-if="!isSharedButtonClicked">{{infoMessage}}</span>
+      <span v-else>Copied to clipboard 📋</span>
     </center>
     <div :class="{'grid-container search-results': !isNominatedMovieFull, 'grid-container search-results--disable': isNominatedMovieFull}">
         <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
@@ -42,6 +44,7 @@
           <!-- Movie component -->
           <movie 
             :movie="movie"
+            :is-nominated="isNominated(movie)"
             :is-result="true"
             @nominated="onNominated"
           />
@@ -61,6 +64,8 @@ import { ServiceFactory } from '../service/omdb-factory';
 const OmdbService = ServiceFactory.get('movies');
 
 const MAX_NOMINATED_MOVIES = 5;
+const ADD_MOVIE_MESSAGE = 'Click on a movie to add it to the nomination list.';
+const FULL_NOMINATE_LIST_MESSAGE = '🏆 Nice nomination list 🏆 To edit your nominated movies, simply click to remove it and add another one.';
 
 export default {
   name: 'ShoppiesView',
@@ -79,16 +84,18 @@ export default {
       nominatedMovies: [],
       emptyList: [],
       isScrolledToBottom: false,
-      currentPage: 1
+      currentPage: 1,
+      isSharedButtonClicked: false
     }
   },
   computed: {
     /** Computed getter to return whether the nomination list is full or not */
     isNominatedMovieFull() {
-      return this.nominatedMovies.length >= MAX_NOMINATED_MOVIES;
+      return this.nominatedMovies.length === MAX_NOMINATED_MOVIES;
     },
-    emptyNominatedMovieLength() {
-      return MAX_NOMINATED_MOVIES - this.nominatedMovies.length;
+
+    infoMessage() {
+      return this.isNominatedMovieFull ? FULL_NOMINATE_LIST_MESSAGE : ADD_MOVIE_MESSAGE;
     }
   },
   mounted() {
@@ -122,9 +129,7 @@ export default {
           this.isTooManyResult = false;
 
           data.Search.forEach(movie => {
-            // Search if the movie is already nominated
-            const movieIndex = this.nominatedMovies.findIndex(nominatedMovie => nominatedMovie.imdbID === movie.imdbID);
-            if (movieIndex === -1) this.moviesResult.push(movie);
+             this.moviesResult.push(movie);
           });
         }
       }
@@ -149,16 +154,15 @@ export default {
      */
     onNominated(movie) {
       // Add to nominated array
-      this.nominatedMovies.push(movie);
+      if (this.nominatedMovies.length < MAX_NOMINATED_MOVIES) {
+        this.nominatedMovies.push(movie);
 
-      // Replace empty array
-      const nominatedMovieIndex = this.nominatedMovies.indexOf(movie);
-      const emptyListLength = this.emptyList.length - 1;
-      this.emptyList.splice(emptyListLength - nominatedMovieIndex, 1);
-      
-      // Delete from search array
-      const movieIndexInResult = this.moviesResult.indexOf(movie);
-      if (movieIndexInResult !== -1) this.moviesResult.splice(movieIndexInResult, 1);
+        // Replace empty array
+        const nominatedMovieIndex = this.nominatedMovies.indexOf(movie);
+        const emptyListLength = this.emptyList.length - 1;
+        this.emptyList.splice(emptyListLength - nominatedMovieIndex, 1);
+      }
+
     },
 
     /**
@@ -188,6 +192,22 @@ export default {
           isBottomOfWindow = false;
         }
       }
+    },
+
+    /**
+     *  Return whether the movie is nominated or not
+     * @param movie The targeted movie.
+     */
+    isNominated(movie) {
+      const nominatedMovieIndex = this.nominatedMovies.findIndex(nominatedMovie => nominatedMovie.imdbID === movie.imdbID)
+      return nominatedMovieIndex !== -1;
+    },
+    
+    onButtonClicked() {
+      this.isSharedButtonClicked = true;
+      setTimeout(() => {
+        this.isSharedButtonClicked = false;
+      }, 3000);
     }
   }
 }
@@ -248,5 +268,13 @@ export default {
   &__item {
     margin: auto;
   }
+}
+
+.share-button {
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 24px;
+  margin-top: 16px;
+  outline: none;
 }
 </style>

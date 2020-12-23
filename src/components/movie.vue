@@ -8,10 +8,20 @@
       </div>
     </div>
     <div 
-      v-if="this.isMouseOver"
+      v-if="this.isMouseOver && (!isNominated || !isResult)"
       class="card__overlay card__overlay--nominate fade-in"
     >
-      <img src="../assets/nominate_icon.svg" width="88" height="88">
+      <img v-if="!isNominated" src="../assets/nominate_icon.svg" width="88" height="88">
+      <img v-else-if="isNominated && !isResult" src="../assets/remove_icon.svg" width="88" height="88">
+    </div>
+    <div 
+      v-if="isNominated && isResult"
+      class="card__overlay card__overlay--nominate"
+      :disabled="true"
+    >
+    <img src="../assets/nominate_icon.svg" width="88" height="88">
+    <h2>Nominated</h2>
+
     </div>
   </div>
 </template>
@@ -42,7 +52,7 @@ export default {
     methods: {
       /** Handle when the movie is clicked. */
       onClicked() {
-        if (this.isResult) this.$emit('nominated', this.movie);
+        if (!this.isNominated) this.$emit('nominated', this.movie);
         else this.$emit('removed', this.movie);
       },
       /** Handle when the movie is being hovered. */
@@ -94,6 +104,7 @@ export default {
 
     &--nominate {
       background-color: rgba(0,0,0,.4);
+      color: white;
       display: block;
       padding-top:32px;
       text-align: center;
@@ -131,5 +142,10 @@ export default {
 		opacity: 1;
 	}
 }
+
+[disabled="disabled"] {
+  pointer-events: none !important;
+}
+
 
 </style>
