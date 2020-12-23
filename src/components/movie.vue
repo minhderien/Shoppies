@@ -11,7 +11,7 @@
       v-if="this.isMouseOver"
       class="card__overlay card__overlay--nominate fade-in"
     >
-      <img src="../assets/nominate_icon.svg" width="64" height="64">
+      <img src="../assets/nominate_icon.svg" width="88" height="88">
     </div>
   </div>
 </template>
@@ -62,21 +62,21 @@ export default {
 .card {
   box-shadow: 0.2rem 0.2rem 1rem #888888;
   margin-bottom: 12px;
-  height: 232px;
+  height: 312px;
   position: relative;
-  width: 152px;
+  width: 208px;
   border-radius: 4px;
   cursor: pointer;
 
   &__image {
     border-radius: 4px 4px 0 0;
-    height: 216px;
-    width: 152px;
-    
+    height: 288px;
+    width: 208px;
   }
 
   &__footer {
-    font-size: 12px;
+    line-height: 24px;
+    font-size: 16px;
     margin-top:-2px;
     overflow: hidden;
     text-align: center;
@@ -104,13 +104,13 @@ export default {
 .card-badge {
   border-radius: 4px;
   display: inline-block;
-  padding: 4px 4px;
-  text-align: center;
+  padding: 6px 6px;
+  text-align: left;
   
 
   &__year {
     color: #fff;
-    font-size: 10px;
+    font-size: 12px;
     background-color: rgba(0,0,0,.4);
   }
 }

@@ -9,5 +9,14 @@ export default {
    */
   getMoviesByTitle(title) {
     return OmdbBaseConfig.get(`${resource}&s=${title}&type=movie`);
+  },
+  
+  /**
+   * Fetch movies by page.
+   * @param title The title to search. 
+   * @param page The page to fetch.
+   */
+  getMoviesByTitleWithPage(title, page) {
+    return OmdbBaseConfig.get(`${resource}&s=${title}&type=movie&page=${page}`);
   }
 }

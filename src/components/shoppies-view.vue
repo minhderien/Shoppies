@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <h2 class="title">The Shoppies</h2>
+  <div class="container" ref="container">
+    <h1 class="title">The Shoppies</h1>
     <div class="search-bar">
       <!-- Search-bar component -->
       <search-bar @search-changed="onSearchChanged"/>
@@ -29,8 +29,8 @@
       </div>
     </div>
     <center>
-    <h3>Result(s) for "{{searchedMovie}}"</h3>
-    <span>Click on a movie to add it to the nomination list</span>
+      <h3>Result(s) for "{{searchedMovie}}"</h3>
+      <span>Click on a movie to add it to the nomination list</span>
     </center>
     <div :class="{'grid-container search-results': !isNominatedMovieFull, 'grid-container search-results--disable': isNominatedMovieFull}">
         <h4 v-if="isTooManyResult">There is too many results. Please try to be more specific.</h4>
@@ -73,9 +73,13 @@ export default {
     return {
       searchedMovie: '',
       isTooManyResult: false,
+      numberOfMovieResult: 0,
+      numberOfPages: 0,
       moviesResult: [],
       nominatedMovies: [],
-      emptyList: []
+      emptyList: [],
+      isScrolledToBottom: false,
+      currentPage: 1
     }
   },
   computed: {
@@ -91,6 +95,7 @@ export default {
     for(let i = 0; i < MAX_NOMINATED_MOVIES; i++) {
       this.emptyList.push(i);
     }
+    this.scroll();
   },
   methods: {
     /**
@@ -101,12 +106,19 @@ export default {
       this.searchedMovie = searchInput.trim();
       this.moviesResult = [];
       this.isTooManyResult = false;
+      this.numberOfMovieResult = 0;
+      this.numberOfPages = 0;
+      this.currentPage = 1;
 
       if (this.searchedMovie !== '') {
         const { data } = await OmdbService.getMoviesByTitle(searchInput.trim());
         if (data.Error) {
           this.isTooManyResult = true;
         } else {
+          this.numberOfMovieResult = data.totalResults;
+          if (this.numberOfMovieResult >= 10) {
+            this.numberOfPages = Math.ceil(this.numberOfMovieResult / 10);
+          }
           this.isTooManyResult = false;
 
           data.Search.forEach(movie => {
@@ -116,6 +128,20 @@ export default {
           });
         }
       }
+    },
+
+    /**
+     * Get the list of movies by page.
+     * @param searchedMovie The movie being searched.
+     * @param page The page to search.
+     */
+    async onNextPage(searchedMovie, page) {
+      const { data } = await OmdbService.getMoviesByTitleWithPage(searchedMovie, page);
+      data.Search.forEach(movie => {
+        // Search if the movie is already nominated
+        const movieIndex = this.nominatedMovies.findIndex(nominatedMovie => nominatedMovie.imdbID === movie.imdbID);
+        if (movieIndex === -1) this.moviesResult.push(movie);
+      });
     },
     /**
      * Handle when a movie is nominated. Add the movie to the nomination list.
@@ -146,7 +172,23 @@ export default {
 
       // Populate emptyList array.
       this.emptyList.push(movieIndex);
-    } 
+    },
+
+    /**
+     * Handle when the user scroll on the page
+     */
+    scroll() {
+      window.onscroll = async () => {
+        const maxScrollTop = Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop);
+        let isBottomOfWindow = Math.ceil(maxScrollTop) + window.innerHeight >= document.documentElement.offsetHeight;
+        this.isScrolledToBottom = isBottomOfWindow;
+      
+        if (isBottomOfWindow && (this.currentPage < this.numberOfPages)) {
+          await this.onNextPage(this.searchedMovie, ++this.currentPage);
+          isBottomOfWindow = false;
+        }
+      }
+    }
   }
 }
 </script>
@@ -188,15 +230,17 @@ export default {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(8, auto);
-  padding: 24px 0 0 72px ;
-  gap: 10px 20px;
+  grid-template-columns: repeat(5, auto);
+  padding: 88px;
+  gap: 64px;
+  justify-content: center;
 }
 
 .nomination-grid {
   display: grid;
-  grid-template-columns: repeat(5, 172px);
+  grid-template-columns: repeat(5, auto);
   padding-top: 16px;
+  gap: 64px;
   justify-content: center;
 }
 
@@ -205,6 +249,4 @@ export default {
     margin: auto;
   }
 }
-
-
 </style>
