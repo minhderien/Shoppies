@@ -1,6 +1,6 @@
 <template>
   <div class="container" ref="container">
-    <h1 class="title">The Shoppies</h1>
+    <h1 class="title">🏆 The Shoppies 🎬</h1>
     <div class="search-bar">
       <!-- Search-bar component -->
       <search-bar @search-changed="onSearchChanged"/>
@@ -29,7 +29,7 @@
       </div>
     </div>
     <center>
-      <button v-if="isNominatedMovieFull" class="share-button" type="button" @click="onButtonClicked">Share</button>
+      <button v-if="isNominatedMovieFull" class="share-button" type="button" @click="onButtonClicked">Share 📤</button>
       <h3>Result(s) for "{{searchedMovie}}"</h3>
       <span v-if="!isSharedButtonClicked">{{infoMessage}}</span>
       <span v-else>Copied to clipboard 📋</span>
@@ -94,17 +94,41 @@ export default {
       return this.nominatedMovies.length === MAX_NOMINATED_MOVIES;
     },
 
+    /** Computed getter to return the appropriate message based on the length of the nominated movies */
     infoMessage() {
       return this.isNominatedMovieFull ? FULL_NOMINATE_LIST_MESSAGE : ADD_MOVIE_MESSAGE;
     }
   },
   mounted() {
-    for(let i = 0; i < MAX_NOMINATED_MOVIES; i++) {
-      this.emptyList.push(i);
+    const nominationsQuery = this.$route.query.nominations;
+    if (nominationsQuery) {
+      try {
+        const uncoded = this.b64_to_utf8(nominationsQuery);
+        const imdbIDs = uncoded.split(',');
+      imdbIDs.forEach(id => {
+        this.addToNominationList(id);
+      });
+      } catch (err) {
+        console.log('Error while decoding to utf-8: ', err);
+      }
+    } else {
+      for(let i = 0; i < MAX_NOMINATED_MOVIES; i++) {
+        this.emptyList.push(i);
+      }
     }
+
     this.scroll();
   },
   methods: {
+    /**
+     * Fetch the movie by ID.
+     * @param idmbID The targeted imdbID.
+     */
+    async addToNominationList(imdbID) {
+      const { data } = await OmdbService.getMoviesByImdbID(imdbID);
+      this.nominatedMovies.push(data);
+    },
+
     /**
      * Async method that call the Omdb service to get the searched movie.
      * @param searchInput The movie to be searched.
@@ -203,11 +227,48 @@ export default {
       return nominatedMovieIndex !== -1;
     },
     
+    /** Handle when the share button is clicked */
     onButtonClicked() {
       this.isSharedButtonClicked = true;
+      const baseUrl = window.location.protocol + "//" + window.location.host + '?nominations=';
+      let urlBuilder = '';
+
+      this.nominatedMovies.forEach(movie => {
+        urlBuilder += movie.imdbID + ',';
+      })
+
+      try {
+        const encodedQuery = this.utf8_to_b64(urlBuilder.substring(0, urlBuilder.length - 1));
+        // Create a temporary input to copy to clipboard
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value =  baseUrl + encodedQuery;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+      } catch (err) {
+        console.log('Error while encoding to base 64: ', err);
+      }
+
       setTimeout(() => {
         this.isSharedButtonClicked = false;
       }, 3000);
+    },
+
+    /** 
+     * Method to encode utf8 to base 64.
+     * @see https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
+    */
+    utf8_to_b64(str) {
+      return window.btoa(unescape(encodeURIComponent(str)));
+    },
+
+    /** 
+     * Method to decode base 64 to utf8
+     * @see https://developer.mozilla.org/fr/docs/Web/API/WindowBase64/D%C3%A9coder_encoder_en_base64
+    */
+    b64_to_utf8( str ) {
+      return decodeURIComponent(escape(window.atob(str)));
     }
   }
 }
@@ -217,10 +278,6 @@ export default {
 
 .title {
   text-align: center;
-}
-
-.title::before {
-  content: "🏆";
 }
 
 .container {

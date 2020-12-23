@@ -10,6 +10,14 @@ export default {
   getMoviesByTitle(title) {
     return OmdbBaseConfig.get(`${resource}&s=${title}&type=movie`);
   },
+
+  /**
+   * Fetch a single movie by it's imdbID.
+   * @param imdbID The targeted id to search.
+   */
+  getMoviesByImdbID(imdbID) {
+    return OmdbBaseConfig.get(`${resource}&i=${imdbID}&type=movie`);
+  },
   
   /**
    * Fetch movies by page.
