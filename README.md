@@ -18,7 +18,7 @@ The user can load more results by scrolling to the bottom of the page. The api c
 The user can share the nomination list after adding 5 movies. A share button will appear. Upon clicking the button, the shareable link will be copied to the user's clipboard.
 
 ### COVID-19
-To help you go through, here a suggestions of [movies](https://theshoppies-x-mn.herokuapp.com/?nominations=dHQwMTEwOTEyLHR0MzQ2MDI1Mix0dDEzNzU2NjYsdHQwOTkzODQ2LHR0MDA5OTc4NQ%3D%3D) to watch/rewatch. Enjoy :)
+To help you go through, here's a suggestions of [movies](https://theshoppies-x-mn.herokuapp.com/?nominations=dHQwMTEwOTEyLHR0MzQ2MDI1Mix0dDEzNzU2NjYsdHQwOTkzODQ2LHR0MDA5OTc4NQ%3D%3D) to watch/rewatch. Enjoy :)
 
 ## Developer setup
 This project was made with Vue.
