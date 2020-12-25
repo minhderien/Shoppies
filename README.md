@@ -21,6 +21,8 @@ The user can share the nomination list after adding 5 movies. A share button wil
 To help you go through, here a suggestions of [movies](https://theshoppies-x-mn.herokuapp.com/?nominations=dHQwMTEwOTEyLHR0MzQ2MDI1Mix0dDEzNzU2NjYsdHQwOTkzODQ2LHR0MDA5OTc4NQ%3D%3D) to watch/rewatch. Enjoy :)
 
 ## Developer setup
+This project was made with Vue.
+
 Clone this project, considering you have npm installed, run this line:
 ```
 npm install
