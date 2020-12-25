@@ -35,7 +35,7 @@ npm start
 Get your free API key [here](http://www.omdbapi.com/apikey.aspx) 
 
 - Rename the '.env_sample' file to '.env'
-- Change the 'YOUR_API_KEY_HERE' for you API key
+- Change the 'YOUR_API_KEY_HERE' for your API key
 - Save the file
 
 ### Customize configuration
