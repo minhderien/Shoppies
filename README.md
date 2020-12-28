@@ -1,5 +1,8 @@
 # [The Shoppies (deployed on Heroku)](https://theshoppies-x-mn.herokuapp.com)
 
+### COVID-19
+To help you go through the pandemic, here's a suggestions of [movies](https://theshoppies-x-mn.herokuapp.com/?nominations=dHQwMTEwOTEyLHR0MzQ2MDI1Mix0dDEzNzU2NjYsdHQwOTkzODQ2LHR0MDA5OTc4NQ%3D%3D) to watch/rewatch. Enjoy :)
+
 ## Features
 ### Search for your movie in real time
 The user is able to search a movie in real time. I'm using a debounce function in order to reduce the api call on changes of the input. 
@@ -16,9 +19,6 @@ The user can load more results by scrolling to the bottom of the page. The api c
 
 ### Share a nomination list
 The user can share the nomination list after adding 5 movies. A share button will appear. Upon clicking the button, the shareable link will be copied to the user's clipboard.
-
-### COVID-19
-To help you go through, here's a suggestions of [movies](https://theshoppies-x-mn.herokuapp.com/?nominations=dHQwMTEwOTEyLHR0MzQ2MDI1Mix0dDEzNzU2NjYsdHQwOTkzODQ2LHR0MDA5OTc4NQ%3D%3D) to watch/rewatch. Enjoy :)
 
 ## Developer setup
 This project was made with Vue.
